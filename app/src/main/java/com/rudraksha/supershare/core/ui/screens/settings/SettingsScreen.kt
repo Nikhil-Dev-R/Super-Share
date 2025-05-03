@@ -111,7 +111,7 @@ fun SettingToggleItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 12.dp),
+                .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
@@ -137,20 +137,19 @@ fun EditableTextItem(
     onEditClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    Card {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
-                Spacer(Modifier.width(16.dp))
-                Text(title, style = MaterialTheme.typography.bodyLarge)
-            }
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(16.dp))
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+        }
+        Spacer(Modifier.height(4.dp))
 
-            Spacer(Modifier.height(8.dp))
-
+        Card {
             if (isEditing) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(

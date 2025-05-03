@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.WifiTethering
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rudraksha.supershare.core.domain.model.Device
+import com.rudraksha.supershare.core.utils.NavigationManager
 import com.rudraksha.supershare.core.viewmodel.DiscoveryViewModel
 
 @Composable
@@ -140,5 +142,53 @@ fun DeviceItem(device: Device, onClick: () -> Unit) {
             Text(text = device.name, fontWeight = FontWeight.Medium)
             Text(text = device.ipAddress, style = MaterialTheme.typography.labelSmall)
         }
+    }
+}
+
+@Composable
+fun SenderWaitingScreen(navigationManager: NavigationManager) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.WifiTethering,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Waiting for receiver to connect…", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun ReceiverWaitingScreen(navigationManager: NavigationManager) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.WifiTethering,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Searching for sender…", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(32.dp))
+
+        CircularProgressIndicator()
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rudraksha.supershare.core.ui.components.SuperShareSearchBar
+import com.rudraksha.supershare.core.ui.components.SuperShareTopBar
 import com.rudraksha.supershare.core.ui.screens.discovery.DiscoveryScreen
 import com.rudraksha.supershare.core.ui.screens.filemanager.AppInfo
 import com.rudraksha.supershare.core.ui.screens.filemanager.ContactInfo
@@ -16,17 +18,35 @@ import com.rudraksha.supershare.core.ui.screens.filemanager.VideoInfo
 import com.rudraksha.supershare.core.ui.screens.history.HistoryItem
 import com.rudraksha.supershare.core.ui.screens.home.HomeScreen
 import com.rudraksha.supershare.core.ui.screens.settings.SettingsContent
-import com.rudraksha.supershare.core.ui.screens.settings.SettingsScreen
 import com.rudraksha.supershare.core.viewmodel.SettingsUiState
 import com.rudraksha.supershare.ui.theme.SuperShareTheme
 
 //@Preview
 @Composable
+fun TopBarPreview() {
+    SuperShareTheme {
+        SuperShareTopBar(
+            title = "Title",
+//            showBackButton = true,
+            searchBar = {
+                SuperShareSearchBar(
+                    query = "",
+                    onQueryChange = {}
+                )
+            },
+            centerTitle = false,
+        )
+    }
+}
+
+@Preview
+@Composable
 fun HomeSPreview() {
     SuperShareTheme {
         HomeScreen(
             onSendClick = {},
-            onReceiveClick = {}
+            onReceiveClick = {},
+            {}, {}, {}
         )
     }
 }

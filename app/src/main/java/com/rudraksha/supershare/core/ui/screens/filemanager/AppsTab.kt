@@ -31,7 +31,7 @@ fun AppsTab(
             Box(
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable { onToggle(app) }
+                    .clickable { onToggle(app) },
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,7 +62,7 @@ fun AppsTab(
                     )
                     Text(
                         text = app.size,
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                 }

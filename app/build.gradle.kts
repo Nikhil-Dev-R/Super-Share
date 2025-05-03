@@ -72,6 +72,8 @@ dependencies {
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.10.1")
 
+    // Jetpack Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.8.9")
     // Serialization (optional for stack-based navigation)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
