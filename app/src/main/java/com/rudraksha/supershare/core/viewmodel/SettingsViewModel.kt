@@ -1,14 +1,19 @@
 package com.rudraksha.supershare.core.viewmodel
 
-import android.app.Application
 import android.os.Build
+import android.app.Application
 import android.provider.Settings
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.rudraksha.supershare.core.data.datastore.DeviceNameDataStore
-import com.rudraksha.supershare.core.data.datastore.SettingsDataStore
-import kotlinx.coroutines.flow.*
+import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.rudraksha.supershare.core.data.datastore.SettingsDataStore
+import com.rudraksha.supershare.core.data.datastore.DeviceNameDataStore
 
 data class SettingsUiState(
     val darkTheme: Boolean = false,
@@ -18,17 +23,18 @@ data class SettingsUiState(
 )
 
 class SettingsViewModel(
-    private val dataStore: SettingsDataStore,
-    private val app: Application
+    private val app: Application,
 ) : AndroidViewModel(app) {
 
+    private val settingsDataStore: SettingsDataStore = SettingsDataStore(app)
+    private val deviceNameDataStore: DeviceNameDataStore = DeviceNameDataStore(app)
     private val _deviceName = MutableStateFlow("")
     val deviceName = _deviceName.asStateFlow()
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        dataStore.isDarkTheme,
-        dataStore.autoAccept,
-        dataStore.username,
+        settingsDataStore.isDarkTheme,
+        settingsDataStore.autoAccept,
+        settingsDataStore.username,
         _deviceName
     ) { darkTheme, autoAccept, username, deviceName ->
         SettingsUiState(darkTheme, autoAccept, username, deviceName)
@@ -40,7 +46,7 @@ class SettingsViewModel(
 
     private fun loadDeviceName() {
         viewModelScope.launch {
-            val custom = DeviceNameDataStore.getCustomDeviceName(app)
+            val custom = deviceNameDataStore.getCustomDeviceName()
             _deviceName.value = custom ?: getSystemDeviceName()
         }
     }
@@ -61,20 +67,20 @@ class SettingsViewModel(
     }
 
     fun toggleDarkTheme() = viewModelScope.launch {
-        dataStore.setDarkTheme(!uiState.value.darkTheme)
+        settingsDataStore.setDarkTheme(!uiState.value.darkTheme)
     }
 
     fun toggleAutoAccept() = viewModelScope.launch {
-        dataStore.setAutoAccept(!uiState.value.autoAccept)
+        settingsDataStore.setAutoAccept(!uiState.value.autoAccept)
     }
 
     fun updateUsername(name: String) = viewModelScope.launch {
-        dataStore.setUsername(name)
+        settingsDataStore.setUsername(name)
     }
 
     fun saveCustomDeviceName(name: String) {
         viewModelScope.launch {
-            DeviceNameDataStore.saveCustomDeviceName(app, name)
+            deviceNameDataStore.saveCustomDeviceName(name)
             _deviceName.value = name
         }
     }

@@ -32,9 +32,9 @@ fun HistoryTab(
 
         val grouped = remember(selectedItems, selectedFilter) {
             when (selectedFilter) {
-                HistoryFilter.TYPE -> selectedItems.groupBy { it.type }
-                HistoryFilter.SIZE -> selectedItems.groupBy { it.size }
-                HistoryFilter.DATE -> selectedItems.groupBy { it.date }
+                HistoryFilter.TYPE -> selectedItems.groupBy<HistoryItem, String> { it.type.toString() }
+                HistoryFilter.SIZE -> selectedItems.groupBy<HistoryItem, String> { it.size }
+                HistoryFilter.DATE -> selectedItems.groupBy<HistoryItem, String> { it.date.toString() }
             }
         }
 

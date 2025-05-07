@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.rudraksha.supershare.core.utils.ShareAppNavHost
+import com.rudraksha.supershare.core.utils.hasPermissions
 import com.rudraksha.supershare.ui.theme.SuperShareTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,11 +22,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SuperShareTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ShareAppNavHost(
-                        rememberNavController()
+                        rememberNavController(),
+                        hasPermissions = this::hasPermissions
                     )
-                }
+//                }
             }
         }
     }

@@ -73,10 +73,6 @@ fun SuperShareTopBar(
                         style = MaterialTheme.typography.headlineLarge,
                     )
                 },
-                modifier = Modifier
-                    .padding(horizontal = 0.dp)
-                    .defaultMinSize(minHeight = 96.dp)
-                    .height(96.dp),
                 navigationIcon = navigationIcon ?: {},
                 actions = actions,
                 colors = colors,

@@ -23,19 +23,26 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rudraksha.supershare.core.domain.model.FileTransfer
-import com.rudraksha.supershare.core.viewmodel.TransferViewModel
+import com.rudraksha.supershare.core.viewmodel.TransferUiState
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
-fun TransferScreen(viewModel: TransferViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
+fun TransferScreen(
+    uiStateFlow: StateFlow<TransferUiState>,
+    onCancelClick: (String) -> Unit = {}
+) {
+    val uiState by uiStateFlow.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -49,10 +56,12 @@ fun TransferScreen(viewModel: TransferViewModel) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        ConnectionInfo(
-            peerName = uiState.peerName,
-            connectionType = uiState.connectionType
-        )
+        uiState.connectionType?.let {
+            ConnectionInfo(
+                peerName = uiState.peerName,
+                connectionType = it.name
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -64,7 +73,7 @@ fun TransferScreen(viewModel: TransferViewModel) {
                 .padding(top = 8.dp)
         ) {
             items(uiState.files) { file ->
-                FileTransferItem(file)
+                FileTransferItem(file, onCancelClick)
             }
         }
     }
@@ -87,17 +96,38 @@ fun ConnectionInfo(peerName: String, connectionType: String) {
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text("Connected to", style = MaterialTheme.typography.labelMedium)
-                Text(peerName, style = MaterialTheme.typography.bodyLarge)
-                Text(connectionType, style = MaterialTheme.typography.labelSmall)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text("Connected to: ", style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        text = peerName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Text(
+                    text = connectionType,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
+@Preview
 @Composable
-fun FileTransferItem(file: FileTransfer) {
+fun FileTransferItem(
+    file: FileTransfer = FileTransfer(
+        "", "", "", 0f, true
+    ),
+    onCancelClick: (String) -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,7 +136,9 @@ fun FileTransferItem(file: FileTransfer) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.FileCopy,
@@ -125,11 +157,13 @@ fun FileTransferItem(file: FileTransfer) {
 
                 LinearProgressIndicator(
                     progress = {file.progress},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                            .padding(top = 4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .padding(top = 4.dp),
+                    strokeCap = StrokeCap.Round,
                 )
+
                 Text(
                     text = "${(file.progress * 100).toInt()}% • ${file.transferredSize}/${file.totalSize}",
                     style = MaterialTheme.typography.labelSmall,
@@ -137,8 +171,10 @@ fun FileTransferItem(file: FileTransfer) {
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
-            if (file.inProgress) {
-                IconButton(onClick = { /* Cancel action */ }) {
+            if (file.isInProgress) {
+                IconButton(
+                    onClick = { onCancelClick(file.fileName) }
+                ) {
                     Icon(
                         imageVector = Icons.Default.Cancel,
                         contentDescription = "Cancel"

@@ -17,14 +17,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rudraksha.supershare.core.domain.model.AppItem
 
 @Composable
 fun AppsTab(
-    apps: List<AppInfo> = listOf(),
-    selected: List<AppInfo> = listOf(),
-    onToggle: (AppInfo) -> Unit = {}
+    apps: List<AppItem> = listOf(),
+    selected: List<AppItem> = listOf(),
+    onToggle: (AppItem) -> Unit = {}
 ) {
     LazyVerticalGrid(columns = GridCells.Fixed(4)) {
         items(apps) { app ->
@@ -42,11 +44,11 @@ fun AppsTab(
                             .size(64.dp),
                         contentAlignment = Alignment.TopEnd
                     ) {
-                        Image(
-                            painter = app.icon,
-                            contentDescription = app.name,
-                            modifier = Modifier.matchParentSize()
-                        )
+//                        Image(
+//                            painter = app.iconRes as Painter,
+//                            contentDescription = app.name,
+//                            modifier = Modifier.matchParentSize()
+//                        )
                         Checkbox(
                             checked = selected.contains(app),
                             onCheckedChange = { onToggle(app) },
@@ -61,7 +63,7 @@ fun AppsTab(
                         style = MaterialTheme.typography.labelLarge
                     )
                     Text(
-                        text = app.size,
+                        text = app.size.toString(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold
                     )

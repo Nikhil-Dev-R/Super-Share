@@ -60,7 +60,7 @@ fun HistoryItemView(item: HistoryItem) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = item.date,
+                text = item.date.toString(),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

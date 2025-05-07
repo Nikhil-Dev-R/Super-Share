@@ -1,12 +1,15 @@
 package com.rudraksha.supershare.core.utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.graphics.createBitmap
-import com.rudraksha.supershare.core.ui.screens.filemanager.ShareableItem
+import com.rudraksha.supershare.core.domain.model.ShareableItem
 import com.rudraksha.supershare.core.ui.screens.history.HistoryItem
 import com.rudraksha.supershare.core.ui.screens.history.TransferDirection
 
@@ -27,11 +30,18 @@ fun ShareableItem.toHistoryItem(): HistoryItem {
     return HistoryItem(
         id = name,
         name = name,
-        type = this::class.simpleName ?: "Unknown",
+        type = this.type,
         size = size.toString(),
-        date = "", // You can inject current timestamp if needed
-        icon = icon,
+        date = System.currentTimeMillis(),
+        icon = null,
         direction = TransferDirection.SENT,
-        isSelected = isSelected
+        isSelected = true
     )
+}
+
+// Extension to safely unwrap Activity
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

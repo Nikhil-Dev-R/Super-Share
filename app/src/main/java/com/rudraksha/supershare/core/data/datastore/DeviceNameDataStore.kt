@@ -7,18 +7,19 @@ import com.rudraksha.supershare.core.utils.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-object DeviceNameDataStore {
+class DeviceNameDataStore(private val context: Context) {
     private val DEVICE_NAME_KEY = stringPreferencesKey("custom_device_name")
 
-    suspend fun saveCustomDeviceName(context: Context, name: String) {
+    suspend fun saveCustomDeviceName(name: String) {
         context.dataStore.edit { prefs ->
             prefs[DEVICE_NAME_KEY] = name
         }
     }
 
-    suspend fun getCustomDeviceName(context: Context): String? {
+    suspend fun getCustomDeviceName(): String? {
         return context.dataStore.data
             .map { it[DEVICE_NAME_KEY] }
             .first()
     }
 }
+

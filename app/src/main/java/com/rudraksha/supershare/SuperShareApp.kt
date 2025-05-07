@@ -14,8 +14,8 @@ class SuperShareApp : Application() {
         startKoin {
             androidContext(this@SuperShareApp)
             modules(
-                domainModule,
                 dataModule,
+                domainModule,
                 utilsModule,
                 viewModelModule
             )

@@ -30,13 +30,13 @@ class NavigationManager(private val navController: NavHostController) {
         return navController.currentBackStackEntry?.destination?.route
     }
 
-    fun <T : Serializable> getSerializableArgument(
-        screen: Screen.SerializableRoute<T>,
+    fun getSerializableArgument(
+        screen: Screen.SerializableRoute<Serializable>,
         backStackEntry: NavBackStackEntry,
         argKey: String
-    ): T? {
+    ): Serializable? {
         val encoded = backStackEntry.arguments?.getString(argKey)
-        return if (encoded != null) {
+        return  if (encoded != null) {
             screen.parseArgument(encoded)
         } else null
     }

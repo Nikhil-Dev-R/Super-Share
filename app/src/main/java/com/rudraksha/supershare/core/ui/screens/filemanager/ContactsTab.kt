@@ -1,5 +1,6 @@
 package com.rudraksha.supershare.core.ui.screens.filemanager
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rudraksha.supershare.core.domain.model.ContactItem
 
 @Composable
 fun ContactsTab(
-    contacts: List<ContactInfo>,
-    selected: List<ContactInfo>,
-    onToggle: (ContactInfo) -> Unit
+    contacts: List<ContactItem>,
+    selected: List<ContactItem>,
+    onToggle: (ContactItem) -> Unit
 ) {
     LazyColumn {
         items(contacts) { contact ->
@@ -37,11 +39,15 @@ fun ContactsTab(
                     .clickable { onToggle(contact) }
                     .padding(8.dp)
             ) {
-                Icon(Icons.Default.Person, contentDescription = null)
+//                if (contact.)
+                Image(
+                    Icons.Default.Person,
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(contact.name, fontWeight = FontWeight.Bold)
-                    Text(contact.phone, fontSize = 12.sp, color = Color.Gray)
+                    Text(contact.number, fontSize = 12.sp, color = Color.Gray)
                 }
                 Checkbox(
                     checked = selected.contains(contact),

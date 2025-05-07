@@ -1,41 +1,20 @@
 package com.rudraksha.supershare.core.ui.screens.filemanager
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.provider.ContactsContract
-import android.text.format.Formatter
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.SendAndArchive
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Contacts
-import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideoLibrary
@@ -46,9 +25,6 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.VideoLibrary
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,77 +37,23 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.File
-import androidx.core.graphics.createBitmap
+import com.rudraksha.supershare.core.domain.model.AppItem
+import com.rudraksha.supershare.core.domain.model.AudioItem
+import com.rudraksha.supershare.core.domain.model.ContactItem
+import com.rudraksha.supershare.core.domain.model.FileItem
+import com.rudraksha.supershare.core.domain.model.MediaItem
+import com.rudraksha.supershare.core.domain.model.ShareableItem
+import com.rudraksha.supershare.core.domain.model.ShareableType
 import com.rudraksha.supershare.core.ui.screens.history.HistoryItem
-import com.rudraksha.supershare.core.utils.toHistoryItem
-import com.rudraksha.supershare.core.utils.toPainter
-
-sealed class ShareableItem(
-    open val name: String,
-    open val size: String?,
-    open val icon: Painter?,
-    open val isSelected: Boolean = false
-)
-
-data class AppInfo(
-    override val name: String,
-    override val size: String,
-    override val icon: Painter,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, size, icon, isSelected)
-
-data class FileInfo(
-    override val name: String,
-    override val size: String,
-    override val icon: Painter? = null,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, size, icon, isSelected)
-
-data class VideoInfo(
-    override val name: String,
-    override val size: String,
-    val duration: String,
-    override val icon: Painter? = null,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, size, icon, isSelected)
-
-data class PhotoInfo(
-    override val name: String,
-    override val size: String,
-    val date: String,
-    override val icon: Painter? = null,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, size, icon, isSelected)
-
-data class SongInfo(
-    override val name: String,
-    override val size: String,
-    val duration: String,
-    override val icon: Painter? = null,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, size, icon, isSelected)
-
-data class ContactInfo(
-    override val name: String,
-    val phone: String,
-    override val icon: Painter? = null,
-    override val isSelected: Boolean = false
-) : ShareableItem(name, null, icon, isSelected)
+import kotlinx.coroutines.launch
+import com.rudraksha.supershare.core.viewmodel.PickerUiState
+import kotlinx.coroutines.flow.StateFlow
 
 data class TabIconSet(
     val name: String,
@@ -142,36 +64,13 @@ data class TabIconSet(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PickerScreen(
-    apps: List<AppInfo>,
-    files: List<FileInfo>,
-    videos: List<VideoInfo>,
-    photos: List<PhotoInfo>,
-    songs: List<SongInfo>,
-    contacts: List<ContactInfo>,
-    selectedApps: List<AppInfo>,
-    selectedFiles: List<FileInfo>,
-    selectedVideos: List<VideoInfo>,
-    selectedPhotos: List<PhotoInfo>,
-    selectedSongs: List<SongInfo>,
-    selectedContacts: List<ContactInfo>,
-    historyItems: List<HistoryItem>,
-    onAppToggle: (AppInfo) -> Unit,
-    onFileToggle: (FileInfo) -> Unit,
-    onVideoToggle: (VideoInfo) -> Unit,
-    onPhotoToggle: (PhotoInfo) -> Unit,
-    onSongToggle: (SongInfo) -> Unit,
-    onContactToggle: (ContactInfo) -> Unit,
-    onNextClick: () -> Unit
+    observePickerUiState: StateFlow<PickerUiState>,
+    toggleItem: (ShareableItem) -> Unit,
+    updateHistory: (HistoryItem) -> Unit,
+    onNextClick: () -> Unit,
 ) {
-    val tabs = listOf(
-        TabIconSet("History", Icons.Filled.History, Icons.Outlined.History),
-        TabIconSet("Apps", Icons.Filled.Apps, Icons.Outlined.Apps),
-        TabIconSet("Files", Icons.Filled.Folder, Icons.Outlined.Folder),
-        TabIconSet("Videos", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
-        TabIconSet("Photos", Icons.Filled.PhotoLibrary, Icons.Outlined.PhotoLibrary),
-        TabIconSet("Songs", Icons.Filled.LibraryMusic, Icons.Outlined.LibraryMusic),
-        TabIconSet("Contacts", Icons.Filled.Contacts, Icons.Outlined.Contacts)
-    )
+    val pickerUiState = observePickerUiState.collectAsState().value
+
     val pagerState = rememberPagerState(
         initialPage = 1,
         pageCount = { tabs.size }
@@ -196,8 +95,7 @@ fun PickerScreen(
         },
         bottomBar = {
             BottomBar(
-                selectedCount = selectedApps.size + selectedFiles.size + selectedVideos.size +
-                        selectedPhotos.size + selectedSongs.size + selectedContacts.size,
+                selectedCount = pickerUiState.selectedItems.size,
                 onNextClick = onNextClick
             )
         }
@@ -244,22 +142,49 @@ fun PickerScreen(
             HorizontalPager(state = pagerState) { page ->
                 when (page) {
                     0 -> HistoryTab(
-                        selectedItems = historyItems,
-                        onToggle = { /* Provide toggle logic if needed */ }
+                        selectedItems = pickerUiState.history,
+                        onToggle = updateHistory
                     )
-                    1 -> AppsTab(apps, selectedApps, onAppToggle)
-                    2 -> FileTab(files, selectedFiles, onFileToggle)
-                    3 -> VideoTab(videos, selectedVideos, onVideoToggle)
-                    4 -> PhotoTab(photos, selectedPhotos, onPhotoToggle)
-                    5 -> SongTab(songs, selectedSongs, onSongToggle)
-                    6 -> ContactsTab(contacts, selectedContacts, onContactToggle)
+                    1 -> AppsTab(
+                        pickerUiState.apps,
+                        pickerUiState.selectedItems.filterIsInstance<AppItem>(),
+                        onToggle = toggleItem
+                    )
+                    2 -> FileTab(
+                        pickerUiState.files,
+                        pickerUiState.selectedItems.filterIsInstance<FileItem>(),
+                        onToggle = toggleItem
+                    )
+                    3 -> VideoTab(
+                        pickerUiState.videos,
+                        pickerUiState.selectedItems.filterIsInstance<MediaItem>()
+                            .filter { it.mediaType == ShareableType.VIDEO },
+                        onToggle = toggleItem
+                    )
+                    4 -> PhotoTab(
+                        pickerUiState.photos,
+                        pickerUiState.selectedItems.filterIsInstance<MediaItem>()
+                            .filter { it.mediaType == ShareableType.PHOTO },
+                        onToggle = toggleItem
+                    )
+                    5 -> SongTab(
+                        pickerUiState.songs,
+                        pickerUiState.selectedItems.filterIsInstance<AudioItem>(),
+                        onToggle = toggleItem
+                    )
+                    6 -> ContactsTab(
+                        pickerUiState.contacts,
+                        pickerUiState.selectedItems.filterIsInstance<ContactItem>(),
+                        onToggle = toggleItem
+                    )
                 }
             }
         }
     }
 }
 
-fun getInstalledApps(context: Context): List<AppInfo> {
+/*
+fun getInstalledApps(context: Context): List<AppItem> {
     val pm = context.packageManager
     return pm.getInstalledApplications(PackageManager.GET_META_DATA).mapNotNull { app ->
         try {
@@ -267,7 +192,7 @@ fun getInstalledApps(context: Context): List<AppInfo> {
             val packageInfo = pm.getPackageInfo(app.packageName, 0)
             val iconDrawable = pm.getApplicationIcon(app.packageName)
 
-            AppInfo(
+            AppItem(
                 name = appName,
                 size = packageInfo.applicationInfo?.publicSourceDir?.let {
                     Formatter.formatShortFileSize(context, File(it).length())
@@ -280,8 +205,8 @@ fun getInstalledApps(context: Context): List<AppInfo> {
     }
 }
 
-fun getContacts(context: Context): List<ContactInfo> {
-    val contacts = mutableListOf<ContactInfo>()
+fun getContacts(context: Context): List<ContactItem> {
+    val contacts = mutableListOf<ContactItem>()
     val cursor = context.contentResolver.query(
         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
         null, null, null, null
@@ -294,7 +219,7 @@ fun getContacts(context: Context): List<ContactInfo> {
             if (nameIndex < 0 || phoneIndex < 0) continue
 
             contacts.add(
-                ContactInfo(
+                ContactItem(
                     it.getString(nameIndex),
                     it.getString(phoneIndex)
                 )
@@ -302,4 +227,14 @@ fun getContacts(context: Context): List<ContactInfo> {
         }
     }
     return contacts
-}
+}*/
+
+val tabs = listOf(
+    TabIconSet("History", Icons.Filled.History, Icons.Outlined.History),
+    TabIconSet("Apps", Icons.Filled.Apps, Icons.Outlined.Apps),
+    TabIconSet("Files", Icons.Filled.Folder, Icons.Outlined.Folder),
+    TabIconSet("Videos", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
+    TabIconSet("Photos", Icons.Filled.PhotoLibrary, Icons.Outlined.PhotoLibrary),
+    TabIconSet("Songs", Icons.Filled.LibraryMusic, Icons.Outlined.LibraryMusic),
+    TabIconSet("Contacts", Icons.Filled.Contacts, Icons.Outlined.Contacts)
+)

@@ -5,5 +5,5 @@ data class FileTransfer(
     val totalSize: String,
     val transferredSize: String,
     val progress: Float, // between 0.0 and 1.0
-    val inProgress: Boolean
+    val isInProgress: Boolean
 )

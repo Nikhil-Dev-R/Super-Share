@@ -79,14 +79,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.core.graphics.createBitmap
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rudraksha.supershare.core.utils.toPainter
+import com.rudraksha.supershare.core.viewmodel.HistoryUiState
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    historyItems: List<HistoryItem>,
+    observeUiState: StateFlow<HistoryUiState>,
     onBack: () -> Unit
 ) {
+    val uiState = observeUiState.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -99,19 +103,21 @@ fun HistoryScreen(
             )
         }
     ) { padding ->
-        if (historyItems.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No transfer history", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            LazyColumn(modifier = Modifier.padding(padding)) {
-                items(historyItems) { item ->
-                    HistoryItemView(item)
+        uiState.value.history.let {
+            if (it.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No transfer history", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.padding(padding)) {
+                    items(it) { item ->
+                        HistoryItemView(item)
+                    }
                 }
             }
         }

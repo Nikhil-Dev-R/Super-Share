@@ -77,6 +77,8 @@ dependencies {
     // Serialization (optional for stack-based navigation)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+    implementation("com.google.android.gms:play-services-nearby:18.5.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
