@@ -17,10 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rudraksha.supershare.core.domain.model.AppItem
+import com.rudraksha.supershare.core.utils.toPainter
 
 @Composable
 fun AppsTab(
@@ -44,11 +44,13 @@ fun AppsTab(
                             .size(64.dp),
                         contentAlignment = Alignment.TopEnd
                     ) {
-//                        Image(
-//                            painter = app.iconRes as Painter,
-//                            contentDescription = app.name,
-//                            modifier = Modifier.matchParentSize()
-//                        )
+                        app.icon?.let {
+                            Image(
+                                painter = it.toPainter(),
+                                contentDescription = app.name,
+                                modifier = Modifier.matchParentSize()
+                            )
+                        }
                         Checkbox(
                             checked = selected.contains(app),
                             onCheckedChange = { onToggle(app) },
@@ -72,4 +74,3 @@ fun AppsTab(
         }
     }
 }
-

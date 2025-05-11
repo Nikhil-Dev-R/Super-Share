@@ -3,6 +3,7 @@ package com.rudraksha.supershare.core.data.manager
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.wifi.SoftApConfiguration
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
@@ -28,12 +29,22 @@ class HotspotManager(private val context: Context) {
 
         try {
             wifiManager.startLocalOnlyHotspot(object : WifiManager.LocalOnlyHotspotCallback() {
-                override fun onStarted(reservation: WifiManager.LocalOnlyHotspotReservation) {
-                    super.onStarted(reservation)
-                    this@HotspotManager.reservation = reservation
-                    val config = reservation.wifiConfiguration
-                    val ssid = config?.SSID ?: "Unknown SSID"
-                    val password = config?.preSharedKey ?: "No Password"
+                @Suppress("DEPRECATION")
+                override fun onStarted(res: WifiManager.LocalOnlyHotspotReservation) {
+                    super.onStarted(res)
+                    this@HotspotManager.reservation = res
+
+                    // Pick up SSID/password in a null-safe, non-deprecated way on R+;
+                    // fall back only on older.
+                    val (ssid, password) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        val cfg = res.softApConfiguration
+                        // `ssid` and `passphrase` are both nullable Strings → provide defaults
+                        (cfg.ssid ?: "Unknown SSID") to (cfg.passphrase ?: "No Password")
+                    } else {
+                        val oldCfg = res.wifiConfiguration
+                        (oldCfg?.SSID ?: "Unknown SSID") to (oldCfg?.preSharedKey ?: "No Password")
+                    }
+
                     Log.d("HotspotManager", "Hotspot started: SSID=$ssid, Password=$password")
                     onStarted(ssid, password)
                 }
@@ -46,10 +57,10 @@ class HotspotManager(private val context: Context) {
                 override fun onFailed(reason: Int) {
                     super.onFailed(reason)
                     val reasonMsg = when (reason) {
-                        WifiManager.LocalOnlyHotspotCallback.ERROR_NO_CHANNEL -> "No channel available"
-                        WifiManager.LocalOnlyHotspotCallback.ERROR_GENERIC -> "Generic error"
-                        WifiManager.LocalOnlyHotspotCallback.ERROR_INCOMPATIBLE_MODE -> "Incompatible mode"
-                        WifiManager.LocalOnlyHotspotCallback.ERROR_TETHERING_DISALLOWED -> "Tethering disallowed"
+                        ERROR_NO_CHANNEL -> "No channel available"
+                        ERROR_GENERIC -> "Generic error"
+                        ERROR_INCOMPATIBLE_MODE -> "Incompatible mode"
+                        ERROR_TETHERING_DISALLOWED -> "Tethering disallowed"
                         else -> "Unknown error"
                     }
                     Log.e("HotspotManager", "Hotspot failed: $reasonMsg")

@@ -1,11 +1,13 @@
 package com.rudraksha.supershare.core.ui.screens.filemanager
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rudraksha.supershare.core.domain.model.AudioItem
 import com.rudraksha.supershare.core.domain.model.MediaItem
+import com.rudraksha.supershare.core.utils.toPainter
 
 @Composable
 fun <T> MediaTab(
@@ -45,8 +48,16 @@ fun <T> MediaTab(
             ) {
                 val icon = iconExtractor(item)
                 icon?.let {
-                    Icon(painter = it, contentDescription = null)
-                } ?: Icon(Icons.Default.Image, contentDescription = null)
+                    Image(
+                        painter = it,
+                        contentDescription = titleExtractor(item),
+                        modifier = Modifier.size(64.dp)
+                    )
+                } ?: Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = titleExtractor(item),
+                    modifier = Modifier.size(64.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
                     Text(titleExtractor(item), fontWeight = FontWeight.Bold)
@@ -63,12 +74,33 @@ fun <T> MediaTab(
 
 @Composable
 fun VideoTab(videos: List<MediaItem>, selected: List<MediaItem>, onToggle: (MediaItem) -> Unit) =
-    MediaTab(videos, selected, { null }, { it.name }, { it.duration.toString() }, onToggle)
+    MediaTab(
+        videos,
+        selected,
+        { it.icon?.toPainter() },
+        { it.name },
+        { it.duration.toString() },
+        onToggle
+    )
 
 @Composable
 fun PhotoTab(photos: List<MediaItem>, selected: List<MediaItem>, onToggle: (MediaItem) -> Unit) =
-    MediaTab(photos, selected, { null }, { it.name }, { it.date.toString() }, onToggle)
+    MediaTab(
+        photos,
+        selected,
+        { it.icon?.toPainter() },
+        { it.name },
+        { it.date.toString() },
+        onToggle
+    )
 
 @Composable
 fun SongTab(songs: List<AudioItem>, selected: List<AudioItem>, onToggle: (AudioItem) -> Unit) =
-    MediaTab(songs, selected, { null }, { it.name }, { it.size.toString() }, onToggle)
+    MediaTab(
+        songs,
+        selected,
+        { it.icon?.toPainter() },
+        { it.name },
+        { it.size.toString() },
+        onToggle
+    )

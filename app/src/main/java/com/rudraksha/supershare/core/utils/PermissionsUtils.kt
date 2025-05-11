@@ -14,6 +14,7 @@ val permissionsApi33 = setOf(
     Manifest.permission.READ_MEDIA_IMAGES,
     Manifest.permission.READ_MEDIA_VIDEO,
     Manifest.permission.READ_MEDIA_AUDIO,
+    Manifest.permission.READ_CONTACTS,
     Manifest.permission.BLUETOOTH_CONNECT,
     Manifest.permission.BLUETOOTH_SCAN,
     Manifest.permission.POST_NOTIFICATIONS
@@ -22,6 +23,7 @@ val permissionsApi33 = setOf(
 val permissionsLegacy = setOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.READ_EXTERNAL_STORAGE,
+    Manifest.permission.READ_CONTACTS,
     Manifest.permission.BLUETOOTH,
     Manifest.permission.BLUETOOTH_ADMIN
 )
